@@ -8,7 +8,10 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QCheckBox>
+#include <QList>
 #include "dialogpreferences.h"
+#include "point.h"
+#include "parcel.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +24,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void loadPoints();
+    void loadParcels();
 
 private slots:
     void on_actionAbout_triggered();
@@ -44,6 +49,9 @@ private slots:
 private:
     Ui::MainWindow *ui;
     bool titCol;
+    QVector<Point> points;
+    QVector<Parcel> parcels;
+    QString dzielnik;
 };
 
 class Points

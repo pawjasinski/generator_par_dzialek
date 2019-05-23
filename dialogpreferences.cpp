@@ -6,6 +6,7 @@ DialogPreferences::DialogPreferences(QWidget *parent) :
     ui(new Ui::DialogPreferences)
 {
     ui->setupUi(this);
+    this->setAttribute(Qt::WA_DeleteOnClose);
 }
 
 DialogPreferences::~DialogPreferences()

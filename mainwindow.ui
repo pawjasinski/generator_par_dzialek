@@ -168,7 +168,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Nr X Y NR_Dzialki</string>
+     <string>Nr X Y NR_Dzialki separator &quot;;&quot;</string>
     </property>
    </widget>
   </widget>

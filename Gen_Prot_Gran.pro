@@ -27,11 +27,15 @@ CONFIG += c++11
 SOURCES += \
         dialogpreferences.cpp \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        parcel.cpp \
+        point.cpp
 
 HEADERS += \
         dialogpreferences.h \
-        mainwindow.h
+        mainwindow.h \
+        parcel.h \
+        point.h
 
 FORMS += \
         dialogpreferences.ui \

@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle("Paweł Jasiński");
     titCol = false;
+    dzielnik = ";";
     ui->checkBox->setCheckState(Qt::Unchecked);
 }
 
@@ -70,27 +71,59 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
 
 void MainWindow::on_pushButton_Generate_clicked()
 {
-    QString fileNamePoints = ui->lineEditPoints->text();
-    QString fileNameParcels = ui->lineEditParcels->text();
-    QFile Points(fileNamePoints);
-    QFile Parcels(fileNameParcels);
-    if(! Points.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QMessageBox::warning(this, "warning", "Can't open file " + fileNamePoints);
-        Points.close();
-        return;
-    }
-    if(! Parcels.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QMessageBox::warning(this, "warning", "Can't open file " + fileNameParcels);
-        Parcels.close();
-        return;
-    }
-
+    loadPoints();
+    loadParcels();
 }
 
 void MainWindow::on_actionPreferences_triggered()
 {
     DialogPreferences dialog;
     dialog.exec();
+}
+
+void MainWindow::loadPoints()
+{
+    QFile fil(ui->lineEditPoints->text());
+    if(! fil.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QMessageBox::warning(this, "warning", "Can't open file " + ui->lineEditPoints->text());
+        fil.close();
+        return;
+    }
+    QTextStream str(&fil);
+
+}
+void MainWindow::loadParcels()
+{
+    QFile fil(ui->lineEditParcels->text());
+    if(! fil.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QMessageBox::warning(this, "warning", "Can't open file " + ui->lineEditParcels->text());
+        fil.close();
+        return;
+    }
+    QTextStream str(&fil);
+    QString temp;
+    QStringList lista;
+    for(int i = 0; !str.atEnd(); ++i)
+    {
+        temp.clear();
+        lista.clear();
+        str.flush();
+        temp = str.readLine();
+        if(temp == " ") continue;
+        lista = temp.split(dzielnik);
+        if (lista.size() != 3)
+        {
+            QMessageBox::warning(this, "warning", "Something wrong in line: " + QString::number(i+1) + " : " + temp);
+            parcels.clear();
+            break;
+        }
+        lista.removeAll(QString(" "));
+        for(int j = 0; j < lista.size() ; ++j)
+        {
+            lista[0].trimmed();
+        }
+        Parcel()
+    }
 }
