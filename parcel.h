@@ -7,11 +7,13 @@
 class Parcel
 {
 private:
-    QString name;
-    QVector<QString> owners;
+    QString nr;
+    QString owner;
     QString kw;
 public:
-    Parcel(): name(""), owners(QVector<QString> {}) {}
+    Parcel(): nr("_"), owner("_"), kw("_") {}
+    Parcel(QString nr,QString owner , QString kw): nr(nr), owner(owner), kw(kw) {}
+    Parcel(const QStringList& list) {nr = list[0]; kw = list[1]; owner = list[2];}
 };
 
 #endif // PARCEL_H

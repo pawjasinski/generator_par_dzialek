@@ -26,6 +26,7 @@ public:
     ~MainWindow();
     void loadPoints();
     void loadParcels();
+    void loadIsSelPoints();
 
 private slots:
     void on_actionAbout_triggered();
