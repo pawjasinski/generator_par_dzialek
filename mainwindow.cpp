@@ -74,6 +74,8 @@ void MainWindow::on_pushButton_Generate_clicked()
     loadPoints();
     loadParcels();
     loadIsSelPoints();
+    generatePairs();
+    QMessageBox::information(this, "Done", "Done");
 }
 
 void MainWindow::on_actionPreferences_triggered()
@@ -81,7 +83,7 @@ void MainWindow::on_actionPreferences_triggered()
     DialogPreferences dialog;
     dialog.exec();
 }
-
+//these 3 functions below are very similar
 void MainWindow::loadPoints()
 {
     QFile fil(ui->lineEditPoints->text());
@@ -130,6 +132,7 @@ void MainWindow::loadParcels()
     QStringList lista;
     for(int i = 0; !str.atEnd(); ++i)
     {
+        bool addParcel = true;
         temp.clear();
         lista.clear();
         str.flush();
@@ -148,7 +151,18 @@ void MainWindow::loadParcels()
         {
             lista[j] = lista[j].trimmed(); // usuwanie bialych znakow z poczatku i konca QStringa
         }
-        parcels.push_back(Parcel(lista[0], lista[1], lista[2]));
+        if(i > 0)//oprocz pierwszego elementu. Kod ponizej ma wyeliminowac powtorki nr dzialek(nr dzialki ma byc unikalny), dzialka moze miec wielu wlascicieli
+        {
+            for (int j = 0; j < parcels.size(); ++j)
+            {
+                if(lista[0] == parcels[j].getNr())
+                {
+                    parcels[j].addOwner(lista[2]);
+                    addParcel = false;
+                }
+            }
+        }
+        if(addParcel) parcels.push_back(Parcel(lista[0], lista[1], lista[2]));
     }
 }
 
@@ -187,4 +201,55 @@ void MainWindow::loadIsSelPoints()
             points.push_back(Point(lista, true));
         }
     }
+}
+
+void MainWindow::generatePairs()
+{
+    for (int i = 0 ; i < points.size() - 1; ++i )
+    {
+        int pair = 0;
+        for (int j = i + 1; points.size(); ++j)
+        {
+            if(points[i].getParcelNr() == points[j].getParcelNr()) ++pair;
+            if(pair > 1)
+            {
+                pairOfNumers.push_back(QPair<QString, QString>(points[i].getParcelNr(), points[j].getParcelNr()));
+
+
+
+
+                break;
+            }
+        }
+    }
+}
+void MainWindow::saveResult()
+{
+        QString pathToFile;
+        QFileDialog::getSaveFileName(this, "Save file", QDir::currentPath());
+        QFile save(pathToFile);
+        save.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream text(&save);
+        QString temp;
+        temp = "LP;Nr dz. ew.do których należy ustalana granica;Właściciel/ Władający;";
+        temp.append("Nr księgi wieczystej lub oznaczenie innego dokumentu określającego stan prawny działek wymienionych w kolumnie 2;");
+        temp.append("Osoby biorące udział w czynnościach ustalenia przebiegu granic;Data ustalenia przebiegu granic;");
+        temp.append("Sposób ustalenia przebiegu granicy (nie właściwe sposoby zostały skreślone);Nr szkicu;");
+        temp.append("Oświadczenie:\r\n\r\nInne oświadczenie osób biorących udział w czynnościach ustalenia przebiegu granicy Adnotacje wykonawcy");
+        temp.append("i jego podpis My, niżej podpisani, oświadczamy, że granica między działkami wymienionymi w kolumnie 2, przedstawiona na szkicu do");
+        temp.append("protokołu stanowiącym integralną część niniejszego protokołu, została ustalona wg naszych zgodnych wskazań.;");
+        temp.append("Inne oświadczenie osób biorących udział w czynnościach ustalenia przebiegu granicy;");
+        temp.append("Adnotacje wykonawcy i jego podpis");
+        text << temp;
+        temp = "1;2;3;4;5;6;7;8;9;10;11";
+        text << temp;
+        for(int i = 0; i < pairOfNumers.size(); ++i)
+        {
+            temp = QString::number(i);
+            temp.append(";");
+            temp.append(jednostkaEwid);
+            temp.append(".");
+            temp.append( pairOfNumers[i].first );
+            temp.append(";");
+        }
 }

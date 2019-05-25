@@ -12,6 +12,9 @@
 #include "dialogpreferences.h"
 #include "point.h"
 #include "parcel.h"
+#include "pair.h"
+#include <algorithm>
+#include <QPair>
 
 namespace Ui {
 class MainWindow;
@@ -24,9 +27,16 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
     void loadPoints();
+
     void loadParcels();
+
     void loadIsSelPoints();
+
+    void generatePairs();
+
+    void saveResult();
 
 private slots:
     void on_actionAbout_triggered();
@@ -52,7 +62,9 @@ private:
     bool titCol;
     QVector<Point> points;
     QVector<Parcel> parcels;
+    QVector< QPair<QString, QString> > pairOfNumers;
     QString dzielnik;
+    QString jednostkaEwid;
 };
 
 class Points

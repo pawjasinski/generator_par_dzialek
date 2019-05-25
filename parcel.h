@@ -8,12 +8,15 @@ class Parcel
 {
 private:
     QString nr;
-    QString owner;
+    QStringList owner;
     QString kw;
+    QVector<Point> listSelPoints;
 public:
     Parcel(): nr("_"), owner("_"), kw("_") {}
-    Parcel(QString nr,QString owner , QString kw): nr(nr), owner(owner), kw(kw) {}
-    Parcel(const QStringList& list) {nr = list[0]; kw = list[1]; owner = list[2];}
+    Parcel(QString nr,QString Owner , QString kw): nr(nr), owner(Owner), kw(kw) {}
+    Parcel(const QStringList& list) {nr = list[0]; kw = list[1]; owner.append(list[2]);}
+    QString getNr() { return nr; }
+    void addOwner(const QString& own) { owner.append(own); }
 };
 
 #endif // PARCEL_H
