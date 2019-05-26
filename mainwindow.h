@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QDebug>
 #include <QString>
 #include <QTextStream>
 #include <QFile>
@@ -57,11 +58,13 @@ private slots:
 
     void on_actionPreferences_triggered();
 
+    void on_actionSave_as_triggered();
+
 private:
     Ui::MainWindow *ui;
     bool titCol;
-    QVector<Point> points;
-    QVector<Parcel> parcels;
+    QVector<Point*> *points;
+    QVector<Parcel*> *parcels;
     QVector< QPair<QString, QString> > pairOfNumers;
     QString dzielnik;
     QString jednostkaEwid;
