@@ -19,7 +19,13 @@ public:
     {
         return qSqrt(qPow(pointOne.x - pointSecond.x, 2) + qPow(pointOne.y - pointSecond.y, 2));
     }
+    QString getNumer() {return name;}
     QString getParcelNr() {return parcelNr;}
+    friend bool operator==(const Point& p1, const Point& p2)
+    {
+        if(p1.name != p2.name || p1.parcelNr != p1.parcelNr) return false;
+        return true;
+    }
 };
 
 #endif // POINT_H

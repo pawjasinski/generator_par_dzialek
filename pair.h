@@ -2,6 +2,7 @@
 #define PAIR_H
 #include "point.h"
 #include "parcel.h"
+#include <QtDebug>
 
 class PairOfParcels
 {
@@ -31,6 +32,11 @@ public:
         else nrKW.second = nrkw;
     }
     void addOwner(const QString& own) {owners.push_back(own);}
+    friend QDebug operator<< (QDebug dbg, const PairOfParcels& par)
+    {
+        dbg << par.pair;
+        return dbg.maybeSpace();
+    }
 };
 
 #endif // PAIR_H

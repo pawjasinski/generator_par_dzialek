@@ -39,6 +39,8 @@ public:
 
     void saveResult();
 
+    QString findNrKw(const QString& numerOfParcel);
+
 private slots:
     void on_actionAbout_triggered();
 
@@ -65,9 +67,11 @@ private:
     bool titCol;
     QVector<Point*> *points;
     QVector<Parcel*> *parcels;
-    QVector< QPair<QString, QString> > pairOfNumers;
+    QVector< QPair<Parcel*,Parcel*> > *pairOfParcels;
     QString dzielnik;
     QString jednostkaEwid;
+
+    Parcel* findParcel(const QString& numerOfParcel);
 };
 
 class Points

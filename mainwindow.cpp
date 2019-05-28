@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->checkBox->setCheckState(Qt::Unchecked);
     points = new QVector<Point*>();
     parcels = new QVector<Parcel*>();
+    pairOfParcels = new QVector< QPair<Parcel*, Parcel*> >();
 }
 
 MainWindow::~MainWindow()
@@ -37,7 +38,15 @@ void MainWindow::on_pushButtonPathPoints_clicked()
 void MainWindow::on_actionexit_triggered()
 {
     QMessageBox::StandardButton reply = QMessageBox::warning(this, "Warning", "Do you want exit", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if(reply == QMessageBox::Yes) QApplication::quit();
+    if(reply == QMessageBox::Yes)
+    {
+        for (int i = 0; i < points->size(); ++i) delete points->at(i);
+        for (int i = 0; i < parcels->size(); ++i) delete parcels->at(i);
+        delete pairOfParcels;
+        delete points;
+        delete parcels;
+        QApplication::quit();
+    }
 }
 
 void MainWindow::on_pushButtonPathParcels_clicked()
@@ -75,7 +84,7 @@ void MainWindow::on_pushButton_Generate_clicked()
 {
     loadPoints();
     loadParcels();
-    loadIsSelPoints();
+    //loadIsSelPoints(); // niepotrzebne
     qDebug() << "Zaladowano all";
     generatePairs();
     QMessageBox::information(this, "Done", "Done");
@@ -107,9 +116,9 @@ void MainWindow::loadPoints()
         temp = str.readLine();
         if(temp == "") continue;
         lista = temp.split(dzielnik);
-        if(lista.size() != 4) //bp nr x y nr dzialki - rowniez wyrzucic to do zmiennej!!!
+        if(lista.size() != 4) //bo nr x y nr dzialki - rowniez wyrzucic to do zmiennej!!!
         {
-            QMessageBox::warning(this, "warning", "Something wrong in line: " + QString::number(i + 1) + " : " + temp);
+            QMessageBox::warning(this, "warning", "Something wrong in Points in line: " + QString::number(i + 1) + " : " + temp);
             points->clear();
             fil.close();
             break;
@@ -118,8 +127,22 @@ void MainWindow::loadPoints()
         {
             lista[j] = lista[j].trimmed();
         }
-        points->push_back(new Point(lista));
+        Point* pkt = new Point(lista);
+        for (int j = 0; j < points->size(); ++j) // sprawdzam czy nie ma powtorzonych punktow
+        {
+            if(pkt == points->at(j))
+            {
+                delete pkt;
+                break;
+            }
+        }
+        points->push_back(pkt);
     }
+//    qDebug() << "loadPoints";
+//    for (int i = 0; i < points->size(); ++ i)
+//    {
+//        qDebug() << QString::number(i) + ": " + points->at(i)->getParcelNr();
+//    }
 }
 void MainWindow::loadParcels()
 {
@@ -144,7 +167,7 @@ void MainWindow::loadParcels()
         lista = temp.split(dzielnik); // dziele odczyt linii z pliku do Stringlist
         if (lista.size() != 3) // 3 bo nr dzialki, KW, Wlasciciel !!!!! zamiast 4 dac zmienna w klasie, zeby w razie jakichs zmian nie bylo problemow
         {
-            QMessageBox::warning(this, "warning", "Something wrong in line: " + QString::number(i+1) + " : " + temp);
+            QMessageBox::warning(this, "warning", "Something wrong in Parcels in line: " + QString::number(i+1) + " : " + temp);
             parcels->clear();
             fil.close();
             break;
@@ -158,7 +181,7 @@ void MainWindow::loadParcels()
         {
             for (int j = 0; j < parcels->size(); ++j)
             {
-                if(lista[0] == parcels->at(j)->getNr())
+                if(lista[0] == parcels->at(j)->getNr() && lista[1] == parcels->at(j)->getNrKW() && ! ( parcels->at(j)->getOwners().contains(lista[2]) ) ) // eliminowanie duplikatow
                 {
                     parcels->at(j)->addOwner(lista[2]);
                     addParcel = false;
@@ -167,9 +190,93 @@ void MainWindow::loadParcels()
         }
         if(addParcel) parcels->push_back(new Parcel(lista[0], lista[1], lista[2]));
     }
+//    for (int i = 0 ; i < parcels->size() ; ++i)
+//    {
+//        qDebug() << QString::number(i) + "  " + parcels->at(i)->getNr() + " " + parcels->at(i)->getOwners().at(0);
+//    }
 }
 
-void MainWindow::loadIsSelPoints()
+void MainWindow::generatePairs()
+{
+    for (int i = 0 ; i < points->size() - 1 ; ++i)
+    {
+        QString nr = points->at(i)->getParcelNr();
+        int index = 0;
+        for (int j = i +1 ; j < points->size() ; ++j)
+        {
+            if(nr == points->at(j)->getParcelNr()) index++;
+            if(index > 1)
+            {
+                Parcel* first = findParcel(points->at(i)->getParcelNr());
+                Parcel* second = findParcel(points->at(j)->getParcelNr());
+                QPair<Parcel*,Parcel*> par(first, second);
+                pairOfParcels->push_back(par);
+            }
+        }
+    }
+}
+void MainWindow::saveResult()
+{
+        QString pathToFile;
+        pathToFile = QFileDialog::getSaveFileName(this, "Save file", QDir::currentPath(), "text files(*.txt);; any files(*)" );
+        QFile save(pathToFile);
+        save.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream text(&save);
+        QString temp = "1;2;3;4;5;6;7;8;9;10;11\r\n";
+        text << temp;
+        temp.clear();
+        text.flush();
+        for (int i = 0 ; i < pairOfParcels->size() ; ++i)
+        {
+            temp.append(QString::number(i));
+            temp.append(";");
+            foreach(const QString x, pairOfParcels->at(i).first->getOwners())
+            {
+                temp.append(x);
+                temp.append(" ");
+            }
+            temp.append(";;;§39.1.Na podstawie zgodnych wskazań właścicieli nieruchomości §39.2. Na podstawie ostatniego spokojnego /"
+                        "stanu posiadania na gruncie §39.3. Na podstawie analizy map jednostkowych PZGiK oraz orzeczeń sądowych;;;;\r\n");
+
+            temp.append(QString::number(i));
+            temp.append(";");
+            foreach(const QString x, pairOfParcels->at(i).second->getOwners())
+            {
+                temp.append(x);
+                temp.append(" ");
+            }
+            temp.append(";;;§39.1.Na podstawie zgodnych wskazań właścicieli nieruchomości §39.2. Na podstawie ostatniego spokojnego /"
+                        "stanu posiadania na gruncie §39.3. Na podstawie analizy map jednostkowych PZGiK oraz orzeczeń sądowych;;;;\r\n");
+        }
+
+
+        save.close();
+}
+
+void MainWindow::on_actionSave_as_triggered()
+{
+    saveResult();
+}
+
+QString MainWindow::findNrKw(const QString& numerOfParcel)
+{
+    for (int i = 0; i < parcels->size(); ++i)
+    {
+        if(numerOfParcel == parcels->at(i)->getNr()) return parcels->at(i)->getNrKW();
+    }
+    return "Brak_NR_KW";
+}
+
+Parcel* MainWindow::findParcel(const QString& numerOfParcel)
+{
+    for (int i = 0 ; i < parcels->size() ; ++i)
+    {
+        if (numerOfParcel == parcels->at(i)->getNr()) return parcels->at(i);
+    }
+    return nullptr;
+}
+
+void MainWindow::loadIsSelPoints()// Niepotrzebne
 {
     {
         QFile fil(ui->lineEditSelPoints->text());
@@ -192,7 +299,7 @@ void MainWindow::loadIsSelPoints()
             lista = temp.split(dzielnik);
             if(lista.size() != 4) //bp nr x y nr dzialki - rowniez wyrzucic to do zmiennej!!!
             {
-                QMessageBox::warning(this, "warning", "Something wrong in line: " + QString::number(i + 1) + " : " + temp);
+                QMessageBox::warning(this, "warning", "Something wrong in selected Points in line: " + QString::number(i + 1) + " : " + temp);
                 points->clear();
                 fil.close();
                 break;
@@ -204,98 +311,4 @@ void MainWindow::loadIsSelPoints()
             points->push_back(new Point(lista, true));
         }
     }
-}
-
-void MainWindow::generatePairs()
-{
-    for (int i = 0 ; i < points->size() - 1; ++i )
-    {
-        int pair = 0;
-        for (int j = i + 1; j < points->size(); ++j)
-        {
-            if(points->at(i)->getParcelNr() == points->at(j)->getParcelNr()) ++pair;
-            if(pair > 1)
-            {
-                pairOfNumers.push_back(QPair<QString, QString>(points->at(i)->getParcelNr(), points->at(j)->getParcelNr()));
-                break;
-            }
-        }
-    }
-}
-void MainWindow::saveResult()
-{
-        QString pathToFile;
-        pathToFile = QFileDialog::getSaveFileName(this, "Save file", QDir::currentPath(), "text files(*.txt);; any files(*)" );
-        QFile save(pathToFile);
-        save.open(QIODevice::WriteOnly | QIODevice::Text);
-        QTextStream text(&save);
-        QString temp;
-
-        temp = "LP;Nr dz. ew.do których należy ustalana granica;Właściciel/ Władający;";
-        temp.append("Nr księgi wieczystej lub oznaczenie innego dokumentu określającego stan prawny działek wymienionych w kolumnie 2;");
-        temp.append("Osoby biorące udział w czynnościach ustalenia przebiegu granic;Data ustalenia przebiegu granic;");
-        temp.append("Sposób ustalenia przebiegu granicy (nie właściwe sposoby zostały skreślone);Nr szkicu;");
-        temp.append("Oświadczenie:\r\n\r\nInne oświadczenie osób biorących udział w czynnościach ustalenia przebiegu granicy Adnotacje wykonawcy");
-        temp.append("i jego podpis My, niżej podpisani, oświadczamy, że granica między działkami wymienionymi w kolumnie 2, przedstawiona na szkicu do");
-        temp.append("protokołu stanowiącym integralną część niniejszego protokołu, została ustalona wg naszych zgodnych wskazań.;");
-        temp.append("Inne oświadczenie osób biorących udział w czynnościach ustalenia przebiegu granicy;");
-        temp.append("Adnotacje wykonawcy i jego podpis");
-        text << temp;
-        temp.clear();
-        text.flush();
-        temp = "\r\n1;2;3;4;5;6;7;8;9;10;11\r\n";
-        text << temp;
-        temp.clear();
-        text.flush();
-        for(int i = 0; i < pairOfNumers.size(); ++i)
-        {
-            temp = QString::number(i+1);
-            temp.append(";");
-            temp.append(jednostkaEwid);
-            temp.append(".");
-            temp.append( pairOfNumers[i].first);
-            temp.append(";");
-            int index {0};
-            for(int j = 0; j < parcels->size(); ++j)
-            {
-                if(parcels->at(j)->getNr() == pairOfNumers[i].first) break; // szukam pierwszego indeksu dzialki w wektorze parcels, gdzie znajduje sie jej nrKW
-                index = j;
-            }
-            temp.append( parcels->at(index)->getNrKW() );
-            temp.append(";;;");
-            //temp.append("§39.1.Na podstawie zgodnych wskazań właścicieli nieruchomości\r\n §39.2. Na podstawie ostatniego spokojnego stanu posiadania na");
-            //temp.append("gruncie\r\n §39.3. Na podstawie analizy map jednostkowych PZGiK oraz orzeczeń sądowych");
-            temp.append(";;;;");
-            text << temp;
-            temp.clear();
-            text.flush();
-
-            //second pair
-            temp = QString::number(i+1);
-            temp.append(";");
-            temp.append(jednostkaEwid);
-            temp.append(".");
-            temp.append( pairOfNumers[i].second);
-            temp.append(";");
-            index = 0;
-            for(int j = 0; j < parcels->size(); ++j)
-            {
-                if(parcels->at(j)->getNr() == pairOfNumers[i].second) break; // szukam pierwszego indeksu dzialki w wektorze parcels, gdzie znajduje sie jej nrKW
-                index = j;
-            }
-            temp.append( parcels->at(index)->getNrKW() );
-            temp.append(";;;");
-            //temp.append("§39.1.Na podstawie zgodnych wskazań właścicieli nieruchomości\r\n §39.2. Na podstawie ostatniego spokojnego stanu posiadania na");
-            //temp.append("gruncie\r\n §39.3. Na podstawie analizy map jednostkowych PZGiK oraz orzeczeń sądowych");
-            temp.append(";;;;");
-            text <<temp;
-            temp.clear();
-            text.flush();
-        }
-        save.close();
-}
-
-void MainWindow::on_actionSave_as_triggered()
-{
-    saveResult();
 }

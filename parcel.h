@@ -18,6 +18,7 @@ public:
     QString getNr() { return nr; }
     void addOwner(const QString& own) { owner.append(own); }
     QString getNrKW() {return kw;}
+    QStringList getOwners() { return owner; }
 };
 
 #endif // PARCEL_H
