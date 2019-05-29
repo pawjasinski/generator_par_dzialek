@@ -10,7 +10,6 @@ private:
     QString nr;
     QStringList owner;
     QString kw;
-    QVector<Point> listSelPoints;
 public:
     Parcel(): nr("_"), owner("_"), kw("_") {}
     Parcel(QString nr,QString Owner , QString kw): nr(nr), owner(Owner), kw(kw) {}

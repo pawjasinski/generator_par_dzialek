@@ -198,22 +198,7 @@ void MainWindow::loadParcels()
 
 void MainWindow::generatePairs()
 {
-    for (int i = 0 ; i < points->size() - 1 ; ++i)
-    {
-        QString nr = points->at(i)->getParcelNr();
-        int index = 0;
-        for (int j = i +1 ; j < points->size() ; ++j)
-        {
-            if(nr == points->at(j)->getParcelNr()) index++;
-            if(index > 1)
-            {
-                Parcel* first = findParcel(points->at(i)->getParcelNr());
-                Parcel* second = findParcel(points->at(j)->getParcelNr());
-                QPair<Parcel*,Parcel*> par(first, second);
-                pairOfParcels->push_back(par);
-            }
-        }
-    }
+
 }
 void MainWindow::saveResult()
 {
