@@ -2,29 +2,42 @@
 #define POINT_H
 #include <QString>
 #include <QList>
+#include <set>
 #include <QtMath>
+
+using std::set;
+class Parcel;
 
 class Point
 {
 protected:
     QString name;
     double x, y;
-    QString parcelNr;
-    bool isSel;
+    set<QString> parcelNr;
+    QVector<Parcel*> pointersOfParcels;
+
 public:
-    Point(): name(""), x(0), y(0), parcelNr(""), isSel(false) {}
-    Point(const QString& name, double x, double y, const QString& parcel, bool isSel): name(name), x(x), y(y), parcelNr(parcel), isSel(isSel) {}
-    Point(const QStringList& lista, bool isSel = false) : name(lista[0]), x(lista[1].toDouble()), y(lista[2].toDouble()), parcelNr(lista[3]), isSel(isSel) {}
+    Point(): name(""), x(0), y(0) {}
+    Point(const QString& name, double x, double y, const QString& parcel): name(name), x(x), y(y), parcelNr(set<QString>{parcel}) {}
+    Point(const QStringList& lista) : name(lista[0]), x(lista[1].toDouble()), y(lista[2].toDouble()), parcelNr(set<QString>{lista[3]}) {}
+
     friend double length(const Point& pointOne, const Point& pointSecond)
     {
         return qSqrt(qPow(pointOne.x - pointSecond.x, 2) + qPow(pointOne.y - pointSecond.y, 2));
     }
+
     QString getNumer() {return name;}
-    QString getParcelNr() {return parcelNr;}
+
+    void addParcel(const QString& numer) { parcelNr.insert(numer); }
+    void addPointerOfParcel(Parcel* pointer) { pointersOfParcels.push_back(pointer); }
+
+    int sizeOfPointersOfParcels() {return pointersOfParcels.size();}
+    Parcel* getParcelPointer(int i = 0) {return pointersOfParcels.at(i);}
+
     friend bool operator==(const Point& p1, const Point& p2)
     {
-        if(p1.name != p2.name || p1.parcelNr != p1.parcelNr) return false;
-        return true;
+        if(p1.name == p2.name) return true;
+        return false;
     }
 };
 

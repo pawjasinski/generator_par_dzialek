@@ -13,9 +13,20 @@
 #include "dialogpreferences.h"
 #include "point.h"
 #include "parcel.h"
-#include "pair.h"
 #include <algorithm>
 #include <QPair>
+
+
+struct comparePairOfParcels
+{
+    bool operator()(const QPair<Parcel*, Parcel*>& T1, const QPair<Parcel*, Parcel*>& T2)
+    {
+        if( T1.first->getNr() == T2.first->getNr() && T1.second->getNr() == T2.second->getNr() ) return true;
+        else if( T1.first->getNr() == T2.second->getNr() && T1.second->getNr() == T1.first->getNr() ) return true;
+        else return false;
+    }
+};
+
 
 namespace Ui {
 class MainWindow;
@@ -50,40 +61,25 @@ private slots:
 
     void on_pushButtonPathParcels_clicked();
 
-    void on_actionOpen_triggered();
-
-    void on_checkBox_stateChanged(int arg1);
+    void on_actionNewFile_triggered();
 
     void on_pushButton_Generate_clicked();
-
-    void on_pushButtonPathSelPoints_clicked();
 
     void on_actionPreferences_triggered();
 
     void on_actionSave_as_triggered();
 
-private:
+protected:
     Ui::MainWindow *ui;
-    bool titCol;
     QVector<Point*> *points;
     QVector<Parcel*> *parcels;
-    QVector< QPair<Parcel*,Parcel*> > *pairOfParcels;
+    set< QPair<Parcel*,Parcel*>, comparePairOfParcels > pairOfParcels;
+    QVector<QPair<Parcel*, Parcel*>> pary;
     QString dzielnik;
     QString jednostkaEwid;
 
     Parcel* findParcel(const QString& numerOfParcel);
-};
-
-class Points
-{
-private:
-public:
-};
-
-class Parcels
-{
-private:
-public:
+    void freeMemory();
 };
 
 

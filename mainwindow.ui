@@ -17,27 +17,27 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>111</width>
+      <x>40</x>
+      <y>20</y>
+      <width>231</width>
       <height>19</height>
      </rect>
     </property>
     <property name="text">
-     <string>Path to Points:</string>
+     <string>Ścieżka do ustalanych punktów granicznych:</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>40</x>
       <y>90</y>
       <width>111</width>
       <height>19</height>
      </rect>
     </property>
     <property name="text">
-     <string>Path to Parcels:</string>
+     <string>Ścieżka do działek:</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEditPoints">
@@ -109,66 +109,17 @@
      <string>Generate</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkBox">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>270</y>
-      <width>251</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>W pierwszym wersie tytuły kolumn</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEditSelPoints">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>190</y>
-      <width>661</width>
-      <height>21</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButtonPathSelPoints">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>190</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Browse</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>160</y>
-      <width>191</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Ścieżka do punktów ustalanych granicy</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
       <x>830</x>
       <y>50</y>
-      <width>291</width>
-      <height>31</height>
+      <width>191</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>Nr X Y NR_Dzialki separator &quot;;&quot;</string>
+     <string>Nr X Y NR_Dzialki separator &lt;tab&gt;</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_5">
@@ -176,25 +127,12 @@
      <rect>
       <x>830</x>
       <y>120</y>
-      <width>291</width>
-      <height>31</height>
+      <width>231</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Nr_dzialki nr_Kw wlasciciel</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_6">
-    <property name="geometry">
-     <rect>
-      <x>830</x>
-      <y>190</y>
-      <width>291</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Nieuzywane</string>
+     <string>Nr_dzialki nr_Kw wlasciciel separator &lt;tab&gt;</string>
     </property>
    </widget>
   </widget>
@@ -211,7 +149,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen"/>
+    <addaction name="actionNewFile"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionexit"/>
    </widget>
@@ -240,7 +178,7 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionOpen">
+  <action name="actionNewFile">
    <property name="text">
     <string>New file</string>
    </property>
