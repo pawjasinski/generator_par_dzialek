@@ -111,24 +111,21 @@ void MainWindow::loadPoints()
             lista[j] = lista[j].trimmed();
         }
         Point* pkt = new Point(lista);
-        for (int j = points->size() - 1; j >= 0; --j) // sprawdzam czy nie ma powtorzonych punktow
+        if(i > 0)
         {
-            if( *pkt == *points->at(j) )
+            for (int j = 0; j < points->size(); ++j) //Eliminuje duplikaty punktow o tych samych numerach
             {
-                points->at(j)->addParcel(lista[3]);
-                delete pkt;
-                pkt = nullptr;
-                break;
+                if(*pkt == *points->at(j))
+                {
+                    qDebug() << "i am in a loop"; // something wrong below
+                    points->at(j)->addParcelNumer(lista.at(3)); // w klasie point sprawdza czy numer dzialki jest unikalny wiec w razie czego po prostu nie doda
+                    delete pkt;
+                    pkt = nullptr;
+                }
             }
         }
-        if (pkt == nullptr) continue;
-        else
-        {
-            points->push_back(pkt);
-            Parcel* par = findParcel(lista[3]);
-            Point* pkt = points->at(points->size() - 1);
-            pkt->addPointerOfParcel(par);
-        }
+        if(pkt != nullptr) points->push_back(pkt);
+        //qDebug() << **(points->end() - 1);
     }
 }
 void MainWindow::loadParcels()
@@ -150,7 +147,7 @@ void MainWindow::loadParcels()
         lista.clear();
         str.flush();
         temp = str.readLine();
-        if(temp == "") continue; // igorowanie pustych linii z pliku w tym ostatniej(jesli jest)
+        if(temp == "") continue; // ignorowanie pustych linii z pliku w tym ostatniej(jesli jest)
         lista = temp.split(dzielnik); // dziele odczyt linii z pliku do Stringlist
         if (lista.size() != 3) // 3 bo nr dzialki, KW, Wlasciciel !!!!! zamiast 4 dac zmienna w klasie, zeby w razie jakichs zmian nie bylo problemow
         {
@@ -168,29 +165,27 @@ void MainWindow::loadParcels()
         {
             for (int j = 0; j < parcels->size(); ++j)
             {
-                if(lista[0] == parcels->at(j)->getNr() && lista[1] == parcels->at(j)->getNrKW() && ! ( parcels->at(j)->getOwners().contains(lista[2]) ) ) // eliminowanie duplikatow
+                if(lista[0] == parcels->at(j)->getNr() && lista[1] == parcels->at(j)->getNrKW() ) // eliminowanie duplikatow
                 {
-                    parcels->at(j)->addOwner(lista[2]);
-                    addParcel = false;
+                    if(parcels->at(j)->getOwners().contains(lista.at(2), Qt::CaseSensitivity::CaseInsensitive)) // eliminuje powtorki w "nazwach" wlascicieli
+                    {
+                        addParcel = false;
+                    }
+                    else
+                    {
+                        addParcel = false;
+                        parcels->at(j)->addOwner(lista.at(2));
+                    }
                 }
             }
         }
-        if(addParcel) parcels->push_back(new Parcel(lista[0], lista[1], lista[2]));
+        if(addParcel) parcels->push_back(new Parcel(lista.at(0), lista.at(2), lista.at(1)));
     }
+    addParcelsPointerToPoints();
 }
 
 void MainWindow::generatePairs()
 {
-    for (int i = 0; i < points->size(); ++i)
-    {
-        for(int j = 0; j < points->at(i)->sizeOfPointersOfParcels() - 1; ++j)
-        {
-            for(int k = 0; k < points->at(i)->sizeOfPointersOfParcels(); ++k)
-            {
-                pairOfParcels.insert(new QPair<Parcel*, Parcel*>(points->at(i)->getParcelPointer(j), points->at(i)->getParcelPointer(k) )));
-            }
-        }
-    }
 }
 
 void MainWindow::saveResult()
@@ -204,26 +199,12 @@ void MainWindow::saveResult()
         text << temp;
         temp.clear();
         text.flush();
-        for (;;)
-        {
-        }
-
-
         save.close();
 }
 
 void MainWindow::on_actionSave_as_triggered()
 {
     saveResult();
-}
-
-QString MainWindow::findNrKw(const QString& numerOfParcel)
-{
-    for (int i = 0; i < parcels->size(); ++i)
-    {
-        if(numerOfParcel == parcels->at(i)->getNr()) return parcels->at(i)->getNrKW();
-    }
-    return "Brak_NR_KW";
 }
 
 Parcel* MainWindow::findParcel(const QString& numerOfParcel)
@@ -241,4 +222,12 @@ void MainWindow::freeMemory()
     for (int i = 0; i < parcels->size(); ++i) delete parcels->at(i);
     delete points;
     delete parcels;
+}
+
+void MainWindow::addParcelsPointerToPoints() // after load points and parcels, important
+{
+    for (int i = 0; i < points->size(); ++i)
+    {
+
+    }
 }

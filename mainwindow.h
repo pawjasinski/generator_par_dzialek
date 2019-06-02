@@ -44,13 +44,11 @@ public:
 
     void loadParcels();
 
-    void loadIsSelPoints();
-
     void generatePairs();
 
     void saveResult();
 
-    QString findNrKw(const QString& numerOfParcel);
+
 
 private slots:
     void on_actionAbout_triggered();
@@ -79,6 +77,7 @@ protected:
     QString jednostkaEwid;
 
     Parcel* findParcel(const QString& numerOfParcel);
+    void addParcelsPointerToPoints();
     void freeMemory();
 };
 
