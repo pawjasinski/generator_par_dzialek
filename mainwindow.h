@@ -14,7 +14,6 @@
 #include "point.h"
 #include "parcel.h"
 #include <algorithm>
-#include <QPair>
 
 
 struct comparePairOfParcels

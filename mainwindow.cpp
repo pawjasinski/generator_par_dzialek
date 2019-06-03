@@ -69,6 +69,7 @@ void MainWindow::on_pushButton_Generate_clicked()
     loadPoints();
     loadParcels();
     qDebug() << "load all";
+    addParcelsPointerToPoints();
     generatePairs();
     QMessageBox::information(this, "Done", "Done");
 }
@@ -111,16 +112,19 @@ void MainWindow::loadPoints()
             lista[j] = lista[j].trimmed();
         }
         Point* pkt = new Point(lista);
+        Point pktTemp = *pkt;
         if(i > 0)
         {
             for (int j = 0; j < points->size(); ++j) //Eliminuje duplikaty punktow o tych samych numerach
             {
-                if(*pkt == *points->at(j))
+                if(pktTemp == *points->at(j))
                 {
-                    qDebug() << "i am in a loop"; // something wrong below
-                    points->at(j)->addParcelNumer(lista.at(3)); // w klasie point sprawdza czy numer dzialki jest unikalny wiec w razie czego po prostu nie doda
-                    delete pkt;
-                    pkt = nullptr;
+                    points->at(j)->addParcelNumer(lista.at(3));
+                    if(pkt != nullptr) // zeby nie wrzucal punktu do tabeli jesli juz tam jest, tylko z innym numerem dzialki
+                    {
+                        delete pkt;
+                        pkt = nullptr;
+                    }
                 }
             }
         }
@@ -186,6 +190,15 @@ void MainWindow::loadParcels()
 
 void MainWindow::generatePairs()
 {
+    for (int x = 0; x < points->size(); ++ x)
+    {
+        points->at(x)->generatePairs();
+        QVector<QPair<Parcel*, Parcel*>> parTemp  = points->at(x)->getPairs();
+        for (int y = 0; y < parTemp.size(); ++y )
+        {
+            if(!pary.contains(parTemp.at(y))) pary.append(parTemp.at(y));
+        }
+    }
 }
 
 void MainWindow::saveResult()
@@ -195,10 +208,30 @@ void MainWindow::saveResult()
         QFile save(pathToFile);
         save.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream text(&save);
-        QString temp = "1;2;3;4;5;6;7;8;9;10;11\r\n";
-        text << temp;
+        QString temp/* = QString("1%12%13%14%15%16%17%18%19%110%111\r\n").arg(dzielnik)*/;
+        //text << temp;
         temp.clear();
         text.flush();
+        int index = 1;
+        for (int z = 0; z < pary.size(); ++z)
+        {
+            QStringList ownersFirstParcel {};
+            QStringList ownersSecondParcel {};
+            for (int q = 0; q < pary.at(z).first->getOwners().size(); ++q)
+            {
+                ownersFirstParcel.append(pary.at(z).first->getOwners().at(q));
+            }
+            for (int w = 0; w < pary.at(z).second->getOwners().size(); ++w)
+            {
+                ownersSecondParcel.append(pary.at(z).second->getOwners().at(w));
+            }
+            temp = QString::number(index) + dzielnik +  pary.at(z).first->getNr() + dzielnik + pary.at(z).first->getNrKW() + dzielnik + ownersFirstParcel.join(", " ) + "\r\n";
+            temp += QString::number(index) + dzielnik + pary.at(z).second->getNr() + dzielnik + pary.at(z).second->getNrKW() + dzielnik + ownersSecondParcel.join(", ") + "\r\n";
+            index++;
+            text << temp;
+            temp.clear();
+            text.flush();
+        }
         save.close();
 }
 
@@ -228,6 +261,11 @@ void MainWindow::addParcelsPointerToPoints() // after load points and parcels, i
 {
     for (int i = 0; i < points->size(); ++i)
     {
-
+        for (int j = 0; j < points->at(i)->getNumerOfParcels().size(); ++j)
+        {
+            QString nrParcel = points->at(i)->getNumerOfParcels().at(j);
+            Parcel* par = findParcel(nrParcel);
+            points->at(i)->addParcelPointer(par);
+        }
     }
 }

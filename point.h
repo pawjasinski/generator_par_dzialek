@@ -5,7 +5,9 @@
 #include <set>
 #include <QtMath>
 #include <QDebug>
+#include <QPair>
 #include "parcel.h"
+#include "pairofparcels.h"
 
 using std::set;
 class Parcel;
@@ -17,6 +19,7 @@ protected:
     double x, y;
     QStringList numerOfParcels;
     QVector<Parcel*> parcels;
+    QVector<QPair<Parcel*, Parcel*>> pairsOfParcels;
 
 public:
     Point(): name(""), x(0), y(0) {}
@@ -27,15 +30,13 @@ public:
 
     void addParcelPointer(Parcel* par)
     {
-       if(! parcels.contains(par))
-       {
-           parcels.push_back(par);
-       }
+       if(! parcels.contains(par)) parcels.push_back(par);
     }
 
     void addParcelNumer(const QString& nr)
     {
-        if( numerOfParcels.contains(nr)) numerOfParcels.push_back(nr);
+
+        if( !numerOfParcels.contains(nr)) numerOfParcels.push_back(nr);
     }
 
     QStringList getNumerOfParcels() { return numerOfParcels; }
@@ -56,11 +57,18 @@ public:
 
     friend QDebug operator<<(QDebug stream, const Point& pkt)
     {
-        stream << pkt.name + "; " + pkt.numerOfParcels.join(", ");
+        QStringList show;
+        for (int x = 0; x < pkt.parcels.size(); ++x)
+        {
+            show.append(pkt.parcels.at(x)->getNr());
+        }
+        stream << pkt.name + " " + show.join(", ");
         return stream;
     }
 
+    QVector<QPair<Parcel*, Parcel*>> getPairs() { return  pairsOfParcels; }
 
+    void generatePairs();
 };
 
 #endif // POINT_H

@@ -28,12 +28,14 @@ SOURCES += \
         dialogpreferences.cpp \
         main.cpp \
         mainwindow.cpp \
+        pairofparcels.cpp \
         parcel.cpp \
         point.cpp
 
 HEADERS += \
         dialogpreferences.h \
         mainwindow.h \
+        pairofparcels.h \
         parcel.h \
         point.h
 
