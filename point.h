@@ -19,7 +19,7 @@ protected:
     double x, y;
     QStringList numerOfParcels;
     QVector<Parcel*> parcels;
-    QVector<QPair<Parcel*, Parcel*>> pairsOfParcels;
+    QVector<QPair<Parcel*, Parcel*>*> pairsOfParcels;
 
 public:
     Point(): name(""), x(0), y(0) {}
@@ -28,6 +28,8 @@ public:
 
     Point(const QStringList& lista) : name(lista[0]), x(lista[1].toDouble()), y(lista[2].toDouble()) { numerOfParcels.append(lista[3]); }
 
+    ~Point();
+
     void addParcelPointer(Parcel* par)
     {
        if(! parcels.contains(par)) parcels.push_back(par);
@@ -35,7 +37,6 @@ public:
 
     void addParcelNumer(const QString& nr)
     {
-
         if( !numerOfParcels.contains(nr)) numerOfParcels.push_back(nr);
     }
 
@@ -66,7 +67,7 @@ public:
         return stream;
     }
 
-    QVector<QPair<Parcel*, Parcel*>> getPairs() { return  pairsOfParcels; }
+    QVector<QPair<Parcel*, Parcel*>*> getPairs() { return  pairsOfParcels; }
 
     void generatePairs();
 };

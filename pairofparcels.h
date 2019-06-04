@@ -14,6 +14,7 @@ public:
         pair.second = second;
     }
     QPair<Parcel*, Parcel*> getPair() { return pair; }
+
     Parcel* getFirst() { return pair.first; }
     Parcel* getSecond() { return pair.second; }
 

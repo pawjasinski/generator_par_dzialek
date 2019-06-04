@@ -22,6 +22,34 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::on_actionNewFile_triggered()
+{
+    ui->lineEditPoints->clear();
+    ui->lineEditParcels->clear();
+    freeMemory();
+}
+
+void MainWindow::on_actionSave_as_triggered()
+{
+    saveResult();
+}
+
+void MainWindow::on_actionexit_triggered()
+{
+    QMessageBox::StandardButton reply = QMessageBox::warning(this, "Warning", "Do you want exit", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if(reply == QMessageBox::Yes)
+    {
+        freeMemory();
+        QApplication::quit();
+    }
+}
+
+void MainWindow::on_actionPreferences_triggered()
+{
+    DialogPreferences dialog;
+    dialog.exec();
+}
+
 void MainWindow::on_actionAbout_triggered()
 {
     QMessageBox::information(this, "About", "Created by Pawel Jasinski 2019\r\n506154528", QMessageBox::StandardButton::Ok, QMessageBox::StandardButton::Ok);
@@ -37,16 +65,6 @@ void MainWindow::on_pushButtonPathPoints_clicked()
     }
 }
 
-void MainWindow::on_actionexit_triggered()
-{
-    QMessageBox::StandardButton reply = QMessageBox::warning(this, "Warning", "Do you want exit", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if(reply == QMessageBox::Yes)
-    {
-        freeMemory();
-        QApplication::quit();
-    }
-}
-
 void MainWindow::on_pushButtonPathParcels_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "open file", QDir::currentPath(), "text files(*.txt);; any files(*)");
@@ -57,35 +75,21 @@ void MainWindow::on_pushButtonPathParcels_clicked()
     }
 }
 
-void MainWindow::on_actionNewFile_triggered()
-{
-    ui->lineEditPoints->clear();
-    ui->lineEditParcels->clear();
-    freeMemory();
-}
-
 void MainWindow::on_pushButton_Generate_clicked()
 {
     loadPoints();
     loadParcels();
-    qDebug() << "load all";
     addParcelsPointerToPoints();
     generatePairs();
     QMessageBox::information(this, "Done", "Done");
 }
 
-void MainWindow::on_actionPreferences_triggered()
-{
-    DialogPreferences dialog;
-    dialog.exec();
-}
-//these 3 functions below are very similar
 void MainWindow::loadPoints()
 {
     QFile fil(ui->lineEditPoints->text());
     if(! fil.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        QMessageBox::warning(this, "warning", "Can't open the file: " + ui->lineEditPoints->text());
+        QMessageBox::warning(this, "warning", "Can't open the file: " + ui->lineEditPoints->text() + "\n" + fil.errorString() );
         fil.close();
         return;
     }
@@ -137,7 +141,7 @@ void MainWindow::loadParcels()
     QFile fil(ui->lineEditParcels->text());
     if(! fil.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        QMessageBox::warning(this, "warning", "Can't open the file: " + ui->lineEditParcels->text());
+        QMessageBox::warning(this, "warning", "Can't open the file: " + ui->lineEditParcels->text() + "\n" + fil.errorString());
         fil.close();
         return;
     }
@@ -190,13 +194,13 @@ void MainWindow::loadParcels()
 
 void MainWindow::generatePairs()
 {
-    for (int x = 0; x < points->size(); ++ x)
+    for (int i = 0; i < points->size(); ++i)
     {
-        points->at(x)->generatePairs();
-        QVector<QPair<Parcel*, Parcel*>> parTemp  = points->at(x)->getPairs();
-        for (int y = 0; y < parTemp.size(); ++y )
+        points->at(i)->generatePairs();
+        QVector<QPair<Parcel*, Parcel*>*> parTemp = points->at(i)->getPairs();
+        for (int j = 0; j < parTemp.size(); ++j )
         {
-            if(!pary.contains(parTemp.at(y))) pary.append(parTemp.at(y));
+            if(!pary.contains( *(parTemp.at(j)) )) pary.append( *(parTemp.at(j)) );
         }
     }
 }
@@ -208,36 +212,30 @@ void MainWindow::saveResult()
         QFile save(pathToFile);
         save.open(QIODevice::WriteOnly | QIODevice::Text);
         QTextStream text(&save);
-        QString temp/* = QString("1%12%13%14%15%16%17%18%19%110%111\r\n").arg(dzielnik)*/;
-        //text << temp;
+        QString temp {};
         temp.clear();
         text.flush();
         int index = 1;
-        for (int z = 0; z < pary.size(); ++z)
+        for (int i = 0; i < pary.size(); ++i)
         {
             QStringList ownersFirstParcel {};
             QStringList ownersSecondParcel {};
-            for (int q = 0; q < pary.at(z).first->getOwners().size(); ++q)
+            for (int j = 0; j < pary.at(i).first->getOwners().size(); ++j)
             {
-                ownersFirstParcel.append(pary.at(z).first->getOwners().at(q));
+                ownersFirstParcel.append(pary.at(i).first->getOwners().at(j));
             }
-            for (int w = 0; w < pary.at(z).second->getOwners().size(); ++w)
+            for (int k = 0; k < pary.at(i).second->getOwners().size(); ++k)
             {
-                ownersSecondParcel.append(pary.at(z).second->getOwners().at(w));
+                ownersSecondParcel.append(pary.at(i).second->getOwners().at(k));
             }
-            temp = QString::number(index) + dzielnik +  pary.at(z).first->getNr() + dzielnik + pary.at(z).first->getNrKW() + dzielnik + ownersFirstParcel.join(", " ) + "\r\n";
-            temp += QString::number(index) + dzielnik + pary.at(z).second->getNr() + dzielnik + pary.at(z).second->getNrKW() + dzielnik + ownersSecondParcel.join(", ") + "\r\n";
+            temp = QString::number(index) + dzielnik +  pary.at(i).first->getNr() + dzielnik + pary.at(i).first->getNrKW() + dzielnik + ownersFirstParcel.join(", " ) + "\n";
+            temp += QString::number(index) + dzielnik + pary.at(i).second->getNr() + dzielnik + pary.at(i).second->getNrKW() + dzielnik + ownersSecondParcel.join(", ") + "\n";
             index++;
             text << temp;
             temp.clear();
             text.flush();
         }
         save.close();
-}
-
-void MainWindow::on_actionSave_as_triggered()
-{
-    saveResult();
 }
 
 Parcel* MainWindow::findParcel(const QString& numerOfParcel)
@@ -249,23 +247,23 @@ Parcel* MainWindow::findParcel(const QString& numerOfParcel)
     return nullptr;
 }
 
+void MainWindow::addParcelsPointerToPoints() // after load points and parcels, important
+{
+    for (int i = 0; i < points->size(); ++i)
+    {
+        QStringList nrParcels = points->at(i)->getNumerOfParcels();
+        foreach(auto x, nrParcels)
+        {
+            Parcel* pointParcel = findParcel(x);
+            points->at(i)->addParcelPointer(pointParcel); // in Class Point the function addParcelPointer checks duplicates
+        }
+    }
+}
+
 void MainWindow::freeMemory()
 {
     for (int i = 0; i < points->size(); ++i) delete points->at(i);
     for (int i = 0; i < parcels->size(); ++i) delete parcels->at(i);
     delete points;
     delete parcels;
-}
-
-void MainWindow::addParcelsPointerToPoints() // after load points and parcels, important
-{
-    for (int i = 0; i < points->size(); ++i)
-    {
-        for (int j = 0; j < points->at(i)->getNumerOfParcels().size(); ++j)
-        {
-            QString nrParcel = points->at(i)->getNumerOfParcels().at(j);
-            Parcel* par = findParcel(nrParcel);
-            points->at(i)->addParcelPointer(par);
-        }
-    }
 }

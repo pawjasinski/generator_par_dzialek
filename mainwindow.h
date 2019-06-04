@@ -70,7 +70,6 @@ protected:
     Ui::MainWindow *ui;
     QVector<Point*> *points;
     QVector<Parcel*> *parcels;
-    set< QPair<Parcel*,Parcel*>, comparePairOfParcels > pairOfParcels;
     QVector<QPair<Parcel*, Parcel*>> pary;
     QString dzielnik;
     QString jednostkaEwid;
