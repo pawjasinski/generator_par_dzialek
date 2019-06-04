@@ -119,7 +119,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Nr X Y NR_Dzialki separator &lt;tab&gt;</string>
+     <string>nr x y nrDziałki</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_5">
@@ -132,7 +132,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Nr_dzialki nr_Kw wlasciciel separator &lt;tab&gt;</string>
+     <string>rrDziałki nrKW właściciel</string>
     </property>
    </widget>
   </widget>
@@ -164,6 +164,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionHelp"/>
    </widget>
    <addaction name="menuPlik"/>
    <addaction name="menuedit"/>
@@ -201,6 +202,11 @@
   <action name="actionPreferences">
    <property name="text">
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
    </property>
   </action>
  </widget>

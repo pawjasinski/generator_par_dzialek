@@ -225,8 +225,8 @@ void MainWindow::saveResult()
             {
                 ownersSecondParcel.append(pary.at(z).second->getOwners().at(w));
             }
-            temp = QString::number(index) + dzielnik +  pary.at(z).first->getNr() + dzielnik + pary.at(z).first->getNrKW() + dzielnik + ownersFirstParcel.join(", " ) + "\r\n";
-            temp += QString::number(index) + dzielnik + pary.at(z).second->getNr() + dzielnik + pary.at(z).second->getNrKW() + dzielnik + ownersSecondParcel.join(", ") + "\r\n";
+            temp = QString::number(index) + dzielnik +  pary.at(z).first->getNr() + dzielnik + pary.at(z).first->getNrKW() + dzielnik + ownersFirstParcel.join(", " ) + "\n";
+            temp += QString::number(index) + dzielnik + pary.at(z).second->getNr() + dzielnik + pary.at(z).second->getNrKW() + dzielnik + ownersSecondParcel.join(", ") + "\n";
             index++;
             text << temp;
             temp.clear();
@@ -268,4 +268,16 @@ void MainWindow::addParcelsPointerToPoints() // after load points and parcels, i
             points->at(i)->addParcelPointer(par);
         }
     }
+}
+
+void MainWindow::on_actionHelp_triggered()
+{
+    QString help = "Podaj ścieżkę do ustalanych(nie wszystkich) punktów granicznych w formacie NrPunktu x y nrDziałki\r\n";
+    help.append("Podaj ścieżkę do działek(wszystkich) w formacie NrDziałki NrKW właściciel jeśli jest kilku właścicieli "
+                "będzie kilka rekordów, każdy po jednym właścicielu\r\n");
+    help.append("Kliknij przycisk \"Generate\", jeśli nie ma błędów kliknij file ->save as i zapisz wynik do pliku\r\n");
+    help.append("Póki co separatorem jest <tabulator>, imie i nazwisko oddzielaj zwyczajnie <spacją>\r\n");
+    help.append("Wynik przeklej do excela, jeśli excel zamienia jakieś numery np na daty - to trzeba zmienić typ wartości ");
+    help.append("w kolumnie na tekstowy - ale to chyba wiesz\r\n");
+    QMessageBox::information(this, "Help", help, QMessageBox::StandardButton::Ok, QMessageBox::StandardButton::Ok);
 }

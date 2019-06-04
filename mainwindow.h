@@ -66,6 +66,8 @@ private slots:
 
     void on_actionSave_as_triggered();
 
+    void on_actionHelp_triggered();
+
 protected:
     Ui::MainWindow *ui;
     QVector<Point*> *points;
