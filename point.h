@@ -20,13 +20,14 @@ protected:
     QStringList numerOfParcels;
     QVector<Parcel*> parcels;
     QVector<QPair<Parcel*, Parcel*>*> pairsOfParcels;
+    bool isSel;
 
 public:
     Point(): name(""), x(0), y(0) {}
 
-    Point(const QString& name, double x, double y): name(name), x(x), y(y) {}
+    Point(const QString& name, double x, double y): name(name), x(x), y(y), isSel(false) {}
 
-    Point(const QStringList& lista) : name(lista[0]), x(lista[1].toDouble()), y(lista[2].toDouble()) { numerOfParcels.append(lista[3]); }
+    Point(const QStringList& lista) : name(lista[0]), x(lista[1].toDouble()), y(lista[2].toDouble()), isSel(false) { numerOfParcels.append(lista[3]); }
 
     ~Point();
 
@@ -63,7 +64,7 @@ public:
         {
             show.append(pkt.parcels.at(x)->getNr());
         }
-        stream << pkt.name + " " + show.join(", ");
+        stream << pkt.name/* + " " + show.join(", ")*/;
         return stream;
     }
 

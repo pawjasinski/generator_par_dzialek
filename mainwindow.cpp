@@ -26,6 +26,7 @@ void MainWindow::on_actionNewFile_triggered()
 {
     ui->lineEditPoints->clear();
     ui->lineEditParcels->clear();
+    ui->lineEditAllPoints->clear();
     freeMemory();
 }
 
@@ -75,8 +76,19 @@ void MainWindow::on_pushButtonPathParcels_clicked()
     }
 }
 
+void MainWindow::on_pushButtonPathAllPoints_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Open file", QDir::currentPath(), "text files(*.txt);; any files(*)");
+    if(! fileName.isEmpty() )
+    {
+        ui->lineEditAllPoints->clear();
+        ui->lineEditAllPoints->setText(fileName);
+    }
+}
+
 void MainWindow::on_pushButton_Generate_clicked()
 {
+  loadSelPoints();
     loadPoints();
     loadParcels();
     addParcelsPointerToPoints();
@@ -86,10 +98,10 @@ void MainWindow::on_pushButton_Generate_clicked()
 
 void MainWindow::loadPoints()
 {
-    QFile fil(ui->lineEditPoints->text());
+    QFile fil(ui->lineEditAllPoints->text());
     if(! fil.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        QMessageBox::warning(this, "warning", "Can't open the file: " + ui->lineEditPoints->text() + "\n" + fil.errorString() );
+        QMessageBox::warning(this, "warning", "Can't open the file: " + ui->lineEditAllPoints->text() + "\n" + fil.errorString() );
         fil.close();
         return;
     }
@@ -104,6 +116,11 @@ void MainWindow::loadPoints()
         temp = str.readLine();
         if(temp == "") continue;
         lista = temp.split(dzielnik);
+        for (int j = 0; j < lista.size(); ++j)
+        {
+            lista[j] = lista.at(j).simplified();
+        }
+        //lista.removeAll({}); // pytanie, czy tabulator_pustepole_tabulator ma oznaczać błąd czy brak danych
         if(lista.size() != 4) //bo nr x y nr dzialki - rowniez wyrzucic to do zmiennej!!!
         {
             QMessageBox::warning(this, "warning", "Something wrong in Points in line: " + QString::number(i + 1) + " : " + temp);
@@ -111,10 +128,7 @@ void MainWindow::loadPoints()
             fil.close();
             break;
         }
-        for(int j = 0; j < lista.size(); ++j)
-        {
-            lista[j] = lista[j].trimmed();
-        }
+        if(! (selPoints.contains(lista.at(0))) ) continue;
         Point* pkt = new Point(lista);
         Point pktTemp = *pkt;
         if(i > 0)
@@ -133,7 +147,7 @@ void MainWindow::loadPoints()
             }
         }
         if(pkt != nullptr) points->push_back(pkt);
-        //qDebug() << **(points->end() - 1);
+        qDebug() << **(points->end() - 1);
     }
 }
 void MainWindow::loadParcels()
@@ -157,6 +171,11 @@ void MainWindow::loadParcels()
         temp = str.readLine();
         if(temp == "") continue; // ignorowanie pustych linii z pliku w tym ostatniej(jesli jest)
         lista = temp.split(dzielnik); // dziele odczyt linii z pliku do Stringlist
+        for (int j = 0; j < lista.size(); ++j)
+        {
+            lista[j] = lista.at(j).simplified();
+        }
+        //lista.removeAll({});
         if (lista.size() != 3) // 3 bo nr dzialki, KW, Wlasciciel !!!!! zamiast 4 dac zmienna w klasie, zeby w razie jakichs zmian nie bylo problemow
         {
             QMessageBox::warning(this, "warning", "Something wrong in Parcels in line: " + QString::number(i+1) + " : " + temp);
@@ -165,10 +184,6 @@ void MainWindow::loadParcels()
             break;
         }
         //lista.removeAll(QString(" ")); niepotrzebne
-        for(int j = 0; j < lista.size() ; ++j)
-        {
-            lista[j] = lista[j].trimmed(); // usuwanie bialych znakow z poczatku i konca QStringa
-        }
         if(i > 0)//oprocz pierwszego elementu. Kod ponizej ma wyeliminowac powtorki nr dzialek(nr dzialki ma byc unikalny), dzialka moze miec wielu wlascicieli
         {
             for (int j = 0; j < parcels->size(); ++j)
@@ -266,4 +281,33 @@ void MainWindow::freeMemory()
     for (int i = 0; i < parcels->size(); ++i) delete parcels->at(i);
     delete points;
     delete parcels;
+    selPoints.clear();
+}
+
+void MainWindow::loadSelPoints()
+{
+    QFile fil(ui->lineEditPoints->text());
+    if(! fil.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QMessageBox::warning(this, "warning", "Can't open the file: " + ui->lineEditPoints->text() + fil.errorString() );
+        fil.close();
+        return;
+    }
+    QTextStream str(&fil);
+    QString temp;
+    QStringList lista; // uzupełnij o eliminowanie duplikatów
+    for (int i = 0; ! str.atEnd() ; ++i)
+    {
+        temp.clear();
+        lista.clear();
+        str.flush();
+        temp = str.readLine();
+        if (temp.isEmpty()) continue;
+        lista = temp.split(dzielnik);
+        for (int j = 0; j < lista.size(); ++j)
+        {
+            lista[j] = lista.at(j).simplified();
+        }
+        selPoints.append(lista.at(0));
+    }
 }

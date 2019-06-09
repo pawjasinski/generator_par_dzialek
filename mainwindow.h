@@ -58,6 +58,8 @@ private slots:
 
     void on_pushButtonPathParcels_clicked();
 
+    void on_pushButtonPathAllPoints_clicked();
+
     void on_actionNewFile_triggered();
 
     void on_pushButton_Generate_clicked();
@@ -68,6 +70,7 @@ private slots:
 
 protected:
     Ui::MainWindow *ui;
+    QStringList selPoints;
     QVector<Point*> *points;
     QVector<Parcel*> *parcels;
     QVector<QPair<Parcel*, Parcel*>> pary;
@@ -77,6 +80,7 @@ protected:
     Parcel* findParcel(const QString& numerOfParcel);
     void addParcelsPointerToPoints();
     void freeMemory();
+    void loadSelPoints();
 };
 
 
